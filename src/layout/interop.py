@@ -17,19 +17,22 @@ from .regions import layout_for
 
 
 def to_viz_canvas(platform: str,
-                  content: Optional[Iterable[str]] = None) -> Dict:
+                  content: Optional[Iterable[str]] = None,
+                  flavor: str = "standard") -> Dict:
     """Build the ``canvas`` dict ``viz.render_viz`` accepts.
 
+    ``flavor`` is ``"standard"`` or ``"quake"`` (earthquake renders).
     Shape::
 
-        {"platform": key, "width": px, "height": px,
+        {"platform": key, "flavor": flavor, "width": px, "height": px,
          "regions": {name: [left, bottom, width, height], ...},
          "unsafe": [[left, bottom, width, height], ...]}
     """
     plat = get_platform(platform)
-    regions = layout_for(platform, content)
+    regions = layout_for(platform, content, flavor=flavor)
     canvas = {
         "platform": plat.key,
+        "flavor": flavor,
         "width": plat.width,
         "height": plat.height,
         "regions": {n: list(r) for n, r in regions.items()},
@@ -53,11 +56,12 @@ def validate_canvas(canvas: Dict) -> Dict:
     regions = canvas["regions"]
     if not isinstance(regions, dict) or not regions:
         raise ValueError("canvas['regions'] must be a non-empty dict")
+    allowed = set(REGION_NAMES) | {"ranking"}
     for name, rect in regions.items():
-        if name not in REGION_NAMES:
+        if name not in allowed:
             raise ValueError(
                 f"unknown region {name!r} "
-                f"(expected one of {list(REGION_NAMES)})")
+                f"(expected one of {sorted(allowed)})")
         if (not isinstance(rect, (list, tuple)) or len(rect) != 4
                 or not all(isinstance(v, (int, float)) for v in rect)):
             raise ValueError(f"region {name!r} must be [l, b, w, h], "

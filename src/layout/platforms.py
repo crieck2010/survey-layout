@@ -15,12 +15,16 @@ reel laid out for one is safe on all three.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .geometry import Rect, from_top_rect
 
 # Region names every platform template provides.
 REGION_NAMES = ("title", "map", "chart", "caption", "footer")
+
+# The earthquake renderer draws an extra "largest events" ranking panel;
+# platforms carry a dedicated six-region set for that flavor.
+QUAKE_REGION_NAMES = ("title", "map", "ranking", "chart", "caption", "footer")
 
 
 @dataclass(frozen=True)
@@ -34,6 +38,10 @@ class Platform:
     unsafe: Tuple[Rect, ...]
     # Curated content regions, keyed by REGION_NAMES entries.
     regions: Dict[str, Rect]
+    # Optional six-region set for the earthquake "quake" flavor
+    # (adds the largest-events ranking panel). Falls back to
+    # ``regions`` when None — callers then derive/omit ranking.
+    quake_regions: Optional[Dict[str, Rect]] = None
     notes: str = ""
 
     @property
@@ -80,6 +88,17 @@ _NINE_SIXTEEN_REGIONS: Dict[str, Rect] = {
     "footer": (0.00, 0.219, 0.856, 0.02),
 }
 
+# Quake flavor for 9:16: the map/chart span is split three ways to fit
+# the largest-events ranking panel between them.
+_NINE_SIXTEEN_QUAKE_REGIONS: Dict[str, Rect] = {
+    "title": (0.02, 0.815, 0.82, 0.095),
+    "map": (0.03, 0.57, 0.80, 0.23),
+    "ranking": (0.03, 0.43, 0.80, 0.12),
+    "chart": (0.05, 0.31, 0.76, 0.10),
+    "caption": (0.02, 0.245, 0.82, 0.055),
+    "footer": (0.00, 0.219, 0.856, 0.02),
+}
+
 
 def _x_portrait_unsafe() -> Tuple[Rect, ...]:
     return (
@@ -92,18 +111,21 @@ PLATFORMS: Dict[str, Platform] = {
     "tiktok": Platform(
         key="tiktok", label="TikTok", width=1080, height=1920,
         unsafe=_tiktok_unsafe(), regions=dict(_NINE_SIXTEEN_REGIONS),
+        quake_regions=dict(_NINE_SIXTEEN_QUAKE_REGIONS),
         notes="9:16 vertical. Regions clear the union of TikTok / Reels / "
               "Shorts chrome, so one render is safe on all three.",
     ),
     "instagram-reel": Platform(
         key="instagram-reel", label="Instagram Reels", width=1080, height=1920,
         unsafe=_reels_unsafe(), regions=dict(_NINE_SIXTEEN_REGIONS),
+        quake_regions=dict(_NINE_SIXTEEN_QUAKE_REGIONS),
         notes="9:16 vertical. Deepest bottom chrome of the three 9:16 "
               "platforms (~21.9%); the shared region set clears it.",
     ),
     "youtube-shorts": Platform(
         key="youtube-shorts", label="YouTube Shorts", width=1080, height=1920,
         unsafe=_shorts_unsafe(), regions=dict(_NINE_SIXTEEN_REGIONS),
+        quake_regions=dict(_NINE_SIXTEEN_QUAKE_REGIONS),
         notes="9:16 vertical. Shares the union-safe 9:16 region set.",
     ),
     "x-portrait": Platform(
@@ -113,6 +135,14 @@ PLATFORMS: Dict[str, Platform] = {
             "title": (0.02, 0.83, 0.96, 0.085),
             "map": (0.03, 0.44, 0.94, 0.36),
             "chart": (0.05, 0.20, 0.90, 0.20),
+            "caption": (0.02, 0.115, 0.96, 0.07),
+            "footer": (0.00, 0.0891, 1.00, 0.0249),
+        },
+        quake_regions={
+            "title": (0.02, 0.83, 0.96, 0.085),
+            "map": (0.03, 0.54, 0.94, 0.27),
+            "ranking": (0.03, 0.40, 0.94, 0.12),
+            "chart": (0.05, 0.20, 0.90, 0.18),
             "caption": (0.02, 0.115, 0.96, 0.07),
             "footer": (0.00, 0.0891, 1.00, 0.0249),
         },
@@ -128,6 +158,14 @@ PLATFORMS: Dict[str, Platform] = {
             "caption": (0.00, 0.06, 1.00, 0.08),
             "footer": (0.00, 0.00, 1.00, 0.055),
         },
+        quake_regions={
+            "title": (0.00, 0.88, 1.00, 0.12),
+            "map": (0.04, 0.52, 0.92, 0.32),
+            "ranking": (0.04, 0.36, 0.92, 0.14),
+            "chart": (0.08, 0.10, 0.84, 0.22),
+            "caption": (0.00, 0.06, 1.00, 0.08),
+            "footer": (0.00, 0.00, 1.00, 0.055),
+        },
         notes="1:1 feed post. No platform chrome inside the canvas; full "
               "bleed is safe.",
     ),
@@ -139,6 +177,14 @@ PLATFORMS: Dict[str, Platform] = {
             "map": (0.02, 0.12, 0.62, 0.70),
             "chart": (0.67, 0.12, 0.31, 0.40),
             "caption": (0.67, 0.56, 0.31, 0.12),
+            "footer": (0.00, 0.00, 1.00, 0.05),
+        },
+        quake_regions={
+            "title": (0.02, 0.86, 0.96, 0.12),
+            "map": (0.02, 0.12, 0.62, 0.70),
+            "ranking": (0.67, 0.66, 0.31, 0.16),
+            "chart": (0.67, 0.30, 0.31, 0.32),
+            "caption": (0.67, 0.16, 0.31, 0.10),
             "footer": (0.00, 0.00, 1.00, 0.05),
         },
         notes="16:9 landscape (YouTube main). Map left, chart right column, "
@@ -156,6 +202,14 @@ PLATFORMS: Dict[str, Platform] = {
             "title": (0.00, 0.90, 1.00, 0.10),
             "map": (0.04, 0.36, 0.92, 0.52),
             "chart": (0.08, 0.08, 0.84, 0.24),
+            "caption": (0.00, 0.065, 1.00, 0.075),
+            "footer": (0.00, 0.00, 1.00, 0.06),
+        },
+        quake_regions={
+            "title": (0.00, 0.90, 1.00, 0.10),
+            "map": (0.04, 0.52, 0.92, 0.36),
+            "ranking": (0.04, 0.30, 0.92, 0.20),
+            "chart": (0.08, 0.08, 0.84, 0.18),
             "caption": (0.00, 0.065, 1.00, 0.075),
             "footer": (0.00, 0.00, 1.00, 0.06),
         },

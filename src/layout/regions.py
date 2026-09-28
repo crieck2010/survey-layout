@@ -7,9 +7,12 @@ engine stays dataset-aware without knowing any dataset:
 
 * continuous gridded variables (SST, ERA5, fires, ...) draw
   title + map + chart + caption + footer,
-* categorical variables (storm tracks, streamgages, earthquakes) draw
-  title + map + caption + footer (no time-series chart; their colors
-  carry meaning and per-frame scalar stats don't apply),
+* storm tracks and streamgage maps draw title + map + caption + footer
+  (no time-series chart; their colors carry meaning and per-frame
+  scalar stats don't apply),
+* earthquake catalogs draw title + map + ranking + chart + caption +
+  footer (the "quake" flavor: a largest-events ranking panel plus a
+  daily-count chart).
 * chart-less combinations simply omit ``"chart"``.
 
 The full mapping of variables to content sets lives in
@@ -23,35 +26,46 @@ from typing import Dict, Iterable, List, Optional
 
 from . import geometry
 from .geometry import Rect
-from .platforms import REGION_NAMES, Platform, get_platform
+from .platforms import QUAKE_REGION_NAMES, REGION_NAMES, Platform, get_platform
 
 #: Content blocks a render plan may request.
-CONTENT_NAMES = ("title", "map", "chart", "caption", "footer")
+CONTENT_NAMES = ("title", "map", "ranking", "chart", "caption", "footer")
 
 
 def layout_for(platform: str,
-               content: Optional[Iterable[str]] = None) -> Dict[str, Rect]:
+               content: Optional[Iterable[str]] = None,
+               flavor: str = "standard") -> Dict[str, Rect]:
     """Region rects for ``platform``, filtered to ``content`` blocks.
 
-    ``content`` defaults to every region. Unknown content names fail
-    fast; the returned rects are figure fractions
-    ``(left, bottom, width, height)`` ready for ``fig.add_axes``.
+    ``flavor`` is ``"standard"`` or ``"quake"`` (the earthquake
+    renderer draws an extra largest-events ranking panel and gets a
+    dedicated six-region set). ``content`` defaults to every region of
+    the flavor. Unknown flavors/platforms/content fail fast; the
+    returned rects are figure fractions ``(left, bottom, width,
+    height)`` ready for ``fig.add_axes``.
     """
+    if flavor not in ("standard", "quake"):
+        raise ValueError(
+            f"Unknown flavor {flavor!r} (expected 'standard' or 'quake')")
     plat = get_platform(platform)
+    names = list(REGION_NAMES) if flavor == "standard" else list(QUAKE_REGION_NAMES)
+    source = plat.regions if flavor == "standard" else plat.quake_regions
+    if source is None:  # pragma: no cover — every platform ships both
+        raise ValueError(f"Platform {platform!r} has no {flavor!r} regions")
     if content is None:
-        names: List[str] = list(REGION_NAMES)
+        wanted: List[str] = names
     else:
-        names = list(content)
-        unknown = [n for n in names if n not in REGION_NAMES]
+        wanted = list(content)
+        unknown = [n for n in wanted if n not in names]
         if unknown:
             raise ValueError(
-                f"Unknown content block(s) {unknown!r} "
-                f"(expected a subset of {list(REGION_NAMES)})")
-    regions = {n: plat.regions[n] for n in names}
+                f"Unknown content block(s) {unknown!r} for flavor "
+                f"{flavor!r} (expected a subset of {names})")
+    regions = {n: source[n] for n in wanted}
     problems = validate_layout(plat, regions)
     if problems:  # curated data must never ship broken
         raise AssertionError(
-            f"Platform {platform!r} regions failed validation: "
+            f"Platform {platform!r} ({flavor}) regions failed validation: "
             + "; ".join(problems))
     return regions
 

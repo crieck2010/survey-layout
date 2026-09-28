@@ -4,7 +4,7 @@ import pytest
 
 from layout import get_platform, list_platforms
 from layout.geometry import within_canvas
-from layout.platforms import PLATFORMS, REGION_NAMES
+from layout.platforms import PLATFORMS, QUAKE_REGION_NAMES, REGION_NAMES
 
 
 def test_all_platforms_advertised():
@@ -30,6 +30,8 @@ def test_every_platform_has_every_region():
     for key in list_platforms():
         plat = get_platform(key)
         assert set(plat.regions) == set(REGION_NAMES), key
+        assert plat.quake_regions is not None, key
+        assert set(plat.quake_regions) == set(QUAKE_REGION_NAMES), key
 
 
 def test_unsafe_rects_inside_canvas():

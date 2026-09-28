@@ -9,6 +9,7 @@ import pytest
 
 from layout import get_platform, layout_for, list_platforms
 from layout.geometry import contains, overlaps, within_canvas
+from layout.platforms import QUAKE_REGION_NAMES
 from layout.regions import validate_layout
 
 
@@ -20,6 +21,25 @@ from layout.regions import validate_layout
 def test_curated_regions_validate_clean(key):
     plat = get_platform(key)
     assert validate_layout(plat, dict(plat.regions)) == []
+
+
+@pytest.mark.parametrize("key", ["tiktok", "instagram-reel", "youtube-shorts",
+                                 "x-portrait", "square", "widescreen",
+                                 "legacy"])
+def test_quake_regions_validate_clean(key):
+    plat = get_platform(key)
+    assert validate_layout(plat, dict(plat.quake_regions)) == []
+
+
+def test_quake_flavor_has_ranking():
+    regions = layout_for("tiktok", flavor="quake")
+    assert set(regions) == set(QUAKE_REGION_NAMES)
+    assert "ranking" in regions
+
+
+def test_bad_flavor_fails_fast():
+    with pytest.raises(ValueError, match="Unknown flavor"):
+        layout_for("tiktok", flavor="imax")
 
 
 def test_layout_for_validates_before_returning():

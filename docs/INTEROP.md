@@ -49,7 +49,8 @@ the render plan's content set:
 | survey-viz variable(s) | content set | notes |
 |---|---|---|
 | sst, ocean-color, era5-*, fires, sea-ice, precipitation, night-lights, topography, water-storage, currents, streamflow-timeseries | title, map, chart, caption, footer | continuous gridded fields with a context series |
-| storm-tracks, streamflow (gage map), earthquakes | title, map, caption, footer | categorical: fixed scientific colors, no chart |
+| storm-tracks, streamflow (gage map) | title, map, caption, footer | categorical: fixed scientific colors, no chart |
+| earthquakes | title, map, ranking, chart, caption, footer | quake flavor: largest-events ranking panel + daily-count chart |
 
 When viz gains a variable, its renderer declares its content set and
 this table grows — the engine itself never changes.

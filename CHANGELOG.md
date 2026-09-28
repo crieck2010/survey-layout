@@ -19,4 +19,6 @@ All notable changes to survey-layout. Format follows [Keep a Changelog](https://
   frame adaptation (Pillow; `pip install "survey-layout[fit]"`).
 - `to_viz_canvas()` / `validate_canvas()`: duck-typed canvas dicts for
   `viz.render_viz(canvas=...)` — viz never imports this package.
-- 38 tests; docs (README, PLATFORMS, INTEROP, ARCHITECTURE).
+  `flavor="quake"` selects the six-region earthquake set (adds the
+  largest-events ranking panel).
+- 47 tests; docs (README, PLATFORMS, INTEROP, ARCHITECTURE).

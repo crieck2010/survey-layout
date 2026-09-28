@@ -18,7 +18,8 @@ chrome; the presets are versioned data, not ground truth, and every
 preset carries its source notes.
 """
 
-from .platforms import PLATFORMS, Platform, get_platform, list_platforms
+from .platforms import (PLATFORMS, QUAKE_REGION_NAMES, REGION_NAMES,
+                        Platform, get_platform, list_platforms)
 from .regions import layout_for, validate_layout
 from .interop import to_viz_canvas, validate_canvas
 
@@ -40,6 +41,8 @@ __version__ = "0.1.0"
 
 __all__ = [
     "PLATFORMS",
+    "QUAKE_REGION_NAMES",
+    "REGION_NAMES",
     "Platform",
     "fit_frame",
     "get_platform",
