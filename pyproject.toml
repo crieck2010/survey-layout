@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "survey-layout"
+version = "0.1.0"
+description = "Platform-aware canvas layouts for vertical data-viz reels: curated safe-zone presets per platform (TikTok, Reels, Shorts, X, square, 16:9), content region templates that clear platform chrome, and frame-fitting helpers"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "crieck2010" }]
+keywords = ["surveying", "remote-sensing", "dataviz", "reels", "tiktok", "layout", "safe-zones"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Multimedia :: Video",
+]
+# Core (platforms, regions, geometry, interop) is stdlib-only on purpose:
+# the canvas math must run anywhere, including inside survey-viz's
+# optional-peer path. Pillow is needed only for fit_frame.
+dependencies = []
+
+[project.optional-dependencies]
+fit = ["pillow>=9"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

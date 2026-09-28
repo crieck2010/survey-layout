@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: survey-layout
+Version: 0.1.0
+Summary: Platform-aware canvas layouts for vertical data-viz reels: curated safe-zone presets per platform (TikTok, Reels, Shorts, X, square, 16:9), content region templates that clear platform chrome, and frame-fitting helpers
+Author: crieck2010
+License: MIT
+Keywords: surveying,remote-sensing,dataviz,reels,tiktok,layout,safe-zones
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Topic :: Multimedia :: Video
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Provides-Extra: fit
+Requires-Dist: pillow>=9; extra == "fit"
