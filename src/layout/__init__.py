@@ -20,8 +20,21 @@ preset carries its source notes.
 
 from .platforms import PLATFORMS, Platform, get_platform, list_platforms
 from .regions import layout_for, validate_layout
-from .fit import fit_frame
 from .interop import to_viz_canvas, validate_canvas
+
+try:  # optional: needs the "fit" extra (numpy + Pillow)
+    from .fit import fit_frame as _fit_frame
+except ImportError:  # pragma: no cover
+    _fit_frame = None
+
+
+def fit_frame(*args, **kwargs):
+    """Fit a frame to a canvas (needs ``pip install "survey-layout[fit]"``)."""
+    if _fit_frame is None:
+        raise ImportError(
+            "fit_frame needs numpy and Pillow: "
+            'pip install "survey-layout[fit]"')
+    return _fit_frame(*args, **kwargs)
 
 __version__ = "0.1.0"
 

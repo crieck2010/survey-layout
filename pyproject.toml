@@ -20,11 +20,11 @@ classifiers = [
 ]
 # Core (platforms, regions, geometry, interop) is stdlib-only on purpose:
 # the canvas math must run anywhere, including inside survey-viz's
-# optional-peer path. Pillow is needed only for fit_frame.
+# optional-peer path. numpy+Pillow are needed only for fit_frame.
 dependencies = []
 
 [project.optional-dependencies]
-fit = ["pillow>=9"]
+fit = ["numpy>=1.22", "pillow>=9"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
